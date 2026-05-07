@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Birthday Surprise</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+body{
+font-family:Arial,sans-serif;
+overflow:hidden;
+height:100vh;
+background:linear-gradient(135deg,#090b18,#151a3d,#1b0f2d);
+color:#fff;
+}
+
+/* stars */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+radial-gradient(white 1px,transparent 1px),
+radial-gradient(#ffd166 1px,transparent 1px);
+background-size:120px 120px,220px 220px;
+opacity:.45;
+animation:move 60s linear infinite;
+z-index:0;
+}
+
+@keyframes move{
+from{transform:translateY(0);}
+to{transform:translateY(-500px);}
+}
+
+.screen{
+position:absolute;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+padding:20px;
+z-index:2;
+}
+
+.screen.active{
+display:flex;
+}
+
+.card{
+width:min(97vw,1200px);
+padding:30px;
+border-radius:28px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(14px);
+text-align:center;
+box-shadow:0 20px 50px rgba(0,0,0,.45);
+animation:fade .8s ease;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(30px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+h1{
+font-size:clamp(34px,5vw,60px);
+margin-bottom:12px;
+background:linear-gradient(90deg,#ffd166,#ff4d8d,#fff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+h2{
+font-size:clamp(28px,4vw,44px);
+margin-bottom:12px;
+}
+
+p{
+line-height:1.7;
+opacity:.95;
+}
+
+input{
+width:min(100%,420px);
+padding:14px;
+border:none;
+outline:none;
+border-radius:14px;
+margin:12px auto;
+display:block;
+font-size:16px;
+}
+
+button{
+padding:13px 28px;
+border:none;
+border-radius:50px;
+cursor:pointer;
+font-weight:bold;
+font-size:16px;
+margin:10px 5px 0;
+color:white;
+background:linear-gradient(135deg,#ff4d8d,#ff7eb3);
+box-shadow:0 10px 25px rgba(255,77,141,.35);
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-3px) scale(1.05);
+}
+
+.error{
+margin-top:10px;
+color:#ffd166;
+}
+
+/* balloons */
+.balloon{
+position:fixed;
+bottom:-120px;
+width:65px;
+height:80px;
+border-radius:50%;
+animation:float linear infinite;
+opacity:.9;
+z-index:1;
+}
+
+.balloon::after{
+content:"";
+position:absolute;
+top:80px;
+left:50%;
+width:2px;
+height:90px;
+background:#fff;
+}
+
+@keyframes float{
+to{
+transform:translateY(-130vh) rotate(8deg);
+}
+}
+
+/* cake */
+.cake{
+position:relative;
+margin:auto;
+width:300px;
+height:280px;
+}
+
+.layer1,.layer2{
+position:absolute;
+left:50%;
+transform:translateX(-50%);
+border-radius:20px;
+}
+
+.layer1{
+bottom:30px;
+width:280px;
+height:120px;
+background:linear-gradient(#ff8fab,#ff4d8d);
+}
+
+.layer2{
+bottom:130px;
+width:190px;
+height:90px;
+background:linear-gradient(#ffe29a,#ffd166);
+}
+
+.plate{
+position:absolute;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:340px;
+height:28px;
+border-radius:50%;
+background:#fff;
+}
+
+.candles{
+position:absolute;
+bottom:215px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:14px;
+}
+
+.candle{
+width:16px;
+height:65px;
+border-radius:10px;
+background:repeating-linear-gradient(
+45deg,
+white 0px,
+white 8px,
+#ff4d8d 8px,
+#ff4d8d 16px
+);
+position:relative;
+}
+
+.flame{
+position:absolute;
+top:-28px;
+left:50%;
+transform:translateX(-50%);
+width:18px;
+height:28px;
+border-radius:50%;
+background:radial-gradient(circle,#fff,#ffd166,#ff8800);
+box-shadow:0 0 18px #ffd166;
+animation:flicker .15s infinite alternate;
+}
+
+@keyframes flicker{
+to{transform:translateX(-50%) scale(1.15);}
+}
+
+.count{
+font-size:70px;
+font-weight:bold;
+margin-top:18px;
+color:#ffd166;
+}
+
+.msg{
+max-width:850px;
+margin:18px auto;
+padding:18px;
+border-radius:18px;
+background:rgba(255,255,255,.08);
+line-height:1.8;
+font-size:18px;
+}
+
+.heart{
+font-size:42px;
+color:#ff4d8d;
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+50%{transform:scale(1.2);}
+}
+
+/* BIGGER SLIDES */
+.slide{
+width:min(98vw,1150px);
+height:min(84vh,760px);
+object-fit:cover;
+border-radius:24px;
+display:none;
+margin:auto;
+box-shadow:0 25px 50px rgba(0,0,0,.5);
+}
+
+.slide.active{
+display:block;
+animation:zoom .8s ease;
+}
+
+@keyframes zoom{
+from{opacity:0;transform:scale(1.08);}
+to{opacity:1;transform:scale(1);}
+}
+
+canvas{
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:1;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<!-- PASSWORD PAGE -->
+<section class="screen active" id="s1">
+<div class="card">
+<h1>Birthday Surprise</h1>
+<p>Enter password to unlock magic ✨</p>
+<input type="password" id="pass" placeholder="Enter Password">
+<button onclick="login()">Open Surprise</button>
+<div class="error" id="error"></div>
+</div>
+</section>
+
+<!-- WISH PAGE -->
+<section class="screen" id="s2">
+<div class="card">
+<h2>Make A Wish ✨</h2>
+<p>Close your eyes, smile and make your best wish.</p>
+<button onclick="startCountdown()">I Made My Wish</button>
+</div>
+</section>
+
+<!-- CAKE PAGE -->
+<section class="screen" id="s3">
+<div class="card">
+<h2>Blow The Candles 🎂</h2>
+
+<div class="cake">
+<div class="layer1"></div>
+<div class="layer2"></div>
+
+<div class="candles">
+<div class="candle"><div class="flame"></div></div>
+<div class="candle"><div class="flame"></div></div>
+<div class="candle"><div class="flame"></div></div>
+<div class="candle"><div class="flame"></div></div>
+<div class="candle"><div class="flame"></div></div>
+</div>
+
+<div class="plate"></div>
+</div>
+
+<div class="count" id="count">3</div>
+</div>
+</section>
+
+<!-- FINAL PAGE -->
+<section class="screen" id="s4">
+<div class="card">
+<h1>Happy Birthday 🎉</h1>
+<div class="heart">♥</div>
+
+<div class="msg">
+Eliii kutty Wishing you endless happiness, success, love and unforgettable memories.
+"Happy birthday! I’m so grateful for our friendship and all the memories we’ve built.
+To the person who’s been there through the late nights.
+May this new year of your life be magical and full of blessings and happiness.
+Stay happy always and keep shining!.Eliii kutty never ever loose your true self.
+You will always get your true souls by your side.Happyyyyyyyyy Boothdayyyyyyy!...
+</div>
+
+<!-- BIGGER PHOTO SLIDES -->
+<img class="slide active" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\Picsart_26-04-26_21-54-34-797.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG-20260426-WA0009.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG-20260426-WA0007.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG_20260315_120818~2.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG-20260426-WA0012.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG-20260208-WA0042.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\IMG_20260418_194656905_HDR~2.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\Picsart_26-04-26_21-56-42-189.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\Picsart_26-04-26_22-05-59-428.jpg.jpeg">
+<img class="slide" src="C:\Users\AJR\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\LocalState\sessions\44B5F8EDE7B9BE10637BA1A82BA8007752556359\transfers\2026-17\Picsart_26-04-26_21-14-47-901.jpg.jpeg">
+<br><br
+<button onclick="prev()">Previous</button>
+<button onclick="next()">Next</button>
+
+</div>
+</section>
+
+<!-- MUSIC -->
+<audio id="music" autoplay loop>
+<source src="C:\Users\AJR\OneDrive\Desktop\Eliii kutty\Remo Birthday Bgm Mp3 Download.mp3">
+</audio>
+
+<script>
+const password="Eliii kutty";
+
+function show(id){
+document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+
+document.getElementById("music").play().catch(()=>{});
+}
+
+function login(){
+if(document.getElementById("pass").value===password){
+show("s2");
+}else{
+document.getElementById("error").innerText="Wrong Password!";
+}
+}
+
+function startCountdown(){
+show("s3");
+let n=3;
+
+let timer=setInterval(()=>{
+document.getElementById("count").innerText=n;
+n--;
+
+if(n<0){
+clearInterval(timer);
+document.querySelectorAll(".flame").forEach(f=>f.style.display="none");
+celebrate();
+setTimeout(()=>show("s4"),1800);
+}
+},1000);
+}
+
+/* balloons */
+for(let i=0;i<18;i++){
+let b=document.createElement("div");
+b.className="balloon";
+b.style.left=Math.random()*100+"vw";
+b.style.background=[
+"#ff4d8d","#ffd166","#00c6ff","#ffffff","#9b5de5"
+][Math.floor(Math.random()*5)];
+b.style.animationDuration=(10+Math.random()*8)+"s";
+document.body.appendChild(b);
+}
+
+/* slideshow */
+let current=0;
+const slides=document.querySelectorAll(".slide");
+
+function next(){
+slides[current].classList.remove("active");
+current=(current+1)%slides.length;
+slides[current].classList.add("active");
+}
+
+function prev(){
+slides[current].classList.remove("active");
+current=(current-1+slides.length)%slides.length;
+slides[current].classList.add("active");
+}
+
+setInterval(next,4000);
+
+/* fireworks */
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+let particles=[];
+
+class Particle{
+constructor(x,y){
+this.x=x;
+this.y=y;
+this.dx=(Math.random()-.5)*6;
+this.dy=(Math.random()-.5)*6;
+this.life=100;
+this.color=`hsl(${Math.random()*360},100%,60%)`;
+}
+
+draw(){
+ctx.beginPath();
+ctx.arc(this.x,this.y,3,0,Math.PI*2);
+ctx.fillStyle=this.color;
+ctx.fill();
+}
+
+update(){
+this.x+=this.dx;
+this.y+=this.dy;
+this.life--;
+}
+}
+
+function boom(){
+for(let i=0;i<60;i++){
+particles.push(new Particle(
+Math.random()*canvas.width,
+Math.random()*canvas.height/2
+));
+}
+}
+
+function celebrate(){
+for(let i=0;i<8;i++){
+setTimeout(boom,i*400);
+}
+}
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach((p,i)=>{
+p.update();
+p.draw();
+if(p.life<=0) particles.splice(i,1);
+});
+
+requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
